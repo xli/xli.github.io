@@ -1,0 +1,12 @@
+# Site settings
+title: Xiao Li
+email: swing1979@gmail.com
+description: >
+  A software engineer.
+baseurl: "" # the subpath of your site, e.g. /blog/
+url: "http://xli.github.io" # the base hostname & protocol for your site
+twitter_username: xli
+github_username:  xli
+
+# Build settings
+markdown: kramdown
