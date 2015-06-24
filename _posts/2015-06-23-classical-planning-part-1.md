@@ -133,7 +133,7 @@ The blocks world example in the book:
       precond: [[:on, :b, :x],
                 [:block, :b],
                 [:clear, :b],
-                [:!= :b, :x]],
+                [:!=, :b, :x]],
       effect: [
         [:on, :b, :table],
         [:clear, :x],
