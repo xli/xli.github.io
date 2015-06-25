@@ -88,7 +88,7 @@ Then the output of the Cake example:
 
 {
   resolved: true,
-  sequence: [[:eat, :cake], [:bake, :cake]]
+  sequence: [[:eat], [:bake]]
 }
 
 {% endhighlight %}
@@ -151,7 +151,7 @@ The output of blocks world problem:
 
 {
   resolved: true,
-  sequence: [[:moveToTable, :C, :A], [:move, :B, :table, :C], [:move, :table, :B]]
+  sequence: [[:moveToTable, :C, :A], [:move, :B, :table, :C], [:move, :A, :table, :B]]
 }
 
 {% endhighlight %}
