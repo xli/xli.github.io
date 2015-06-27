@@ -82,14 +82,11 @@ The Cake example in the book:
 
 {% endhighlight %}
 
-Then the output of the Cake example:
+The solution of the Cake example:
 
 {% highlight ruby %}
 
-{
-  resolved: true,
-  sequence: [[:eat], [:bake]]
-}
+[[:eat], [:bake]]
 
 {% endhighlight %}
 
@@ -145,14 +142,11 @@ The blocks world example in the book:
 
 {% endhighlight %}
 
-The output of blocks world problem:
+The solution of blocks world problem:
 
 {% highlight ruby %}
 
-{
-  resolved: true,
-  sequence: [[:moveToTable, :C, :A], [:move, :B, :table, :C], [:move, :A, :table, :B]]
-}
+[[:moveToTable, :C, :A], [:move, :B, :table, :C], [:move, :A, :table, :B]]
 
 {% endhighlight %}
 
