@@ -91,6 +91,7 @@ h1, h2, h3, h4, h5, h6 {
 a {
     color: $brand-color;
     text-decoration: none;
+    transition: all 0.2s ease-out;
 
     &:visited {
         color: darken($brand-color, 15%);
@@ -98,7 +99,10 @@ a {
 
     &:hover {
         color: $text-color;
-        text-decoration: underline;
+        text-decoration: none;
+        opacity: 0.85;
+        transform: translate(0px,-2px);
+        text-shadow: 4px 4px 4px #aaa;
     }
 }
 
