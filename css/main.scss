@@ -6,7 +6,7 @@
 
 
 // Our variables
-$base-font-family: Helvetica, Arial, sans-serif;
+$base-font-family: Open Sans, Helvetica, Arial, sans-serif;
 $base-font-size:   16px;
 $small-font-size:  $base-font-size * 0.875;
 $base-line-height: 1.5;
@@ -51,12 +51,29 @@ $on-laptop:        800px;
         "syntax-highlighting"
 ;
 
+.site-footer, .site-header {
+  font-family: Tangerine, Open Sans, Helvetica, Arial, sans-serif;
+  text-shadow: 4px 4px 4px #aaa;
+}
+
 li > ul, li > ol {
   margin-bottom: 15px;
 }
 
 .contact-list {
-  text-align: bottom;
+  font-size: 36px;
+  img {
+    vertical-align: text-bottom;
+  }
+  li {
+    display: inline-block;
+    min-width: 72px;
+  }
+}
+
+.site-title {
+  font-size: 36px;
+  line-height: 72px;
 }
 
 .author-image {
