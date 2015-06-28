@@ -381,6 +381,7 @@ If you're interested in this series
 -------------------
 
 I'm regularly pushing my work to [longjing] project. As I'm more passionate about writing code, the blog posts won't catch up the latest changes. You can get latest changes by watching the project:
+
 <iframe src="https://ghbtns.com/github-btn.html?user=xli&repo=longjing&type=watch&v=2&count=true&size=large" frameborder="0" scrolling="0" width="160px" height="30px"></iframe>
 
 [AIMA book]:       http://www.amazon.com/Artificial-Intelligence-Modern-Approach-Edition/dp/0136042597
