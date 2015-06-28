@@ -51,6 +51,9 @@ $on-laptop:        800px;
         "syntax-highlighting"
 ;
 
+li > ul, li > ol {
+  margin-bottom: 15px;
+}
 
 .contact-list {
   text-align: bottom;

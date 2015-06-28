@@ -1,10 +1,12 @@
 ---
 layout: post
-title:  "Classical Planning (part 1)"
-categories: AI, classical planning
+title:  "Classical Planning: #1 Planning Domain Definition Language"
+categories: AI
+tags: classical-planning, PDDL, Ruby
 ---
 
-I'm revisiting "Classical Planning" chapter of the [Artificial Intelligence: A Modern Approach][ai-book]. One outcome I'm targeting is implementing planning algorithm that resolves problems defined by PDDL (Planning Domain Definition Language) described in the book. I'm going to handcraft everything in Ruby, and post source code to https://github.com/xli/longjing.
+I'm revisiting "Classical Planning" chapter of the
+[Artificial Intelligence: A Modern Approach (3rd Edition)]. One outcome I'm targeting is implementing planning algorithm that resolves problems defined by PDDL (Planning Domain Definition Language) described in the book. I'm going to handcraft everything in Ruby, and post source code to [https://github.com/xli/longjing].
 
 The first thing that I need sort out is how to represent PDDL in Ruby. Overall, I like to use primary data structure to construct input data, and LISP style syntax can keep interpreter simple.
 
@@ -14,13 +16,12 @@ Hence I'll use:
 2. Array to construct states/functions.
 3. Hash to construct problem and action, as they need multiple parts.
 
-Similarly, the planning output includes 2 parts:
+Similarly, the planning output should be: an Array describes the steps (Array of Symbols) reaching the goal.
 
-1. Resolved status: Boolean
-2. An Array describes the steps (Array of Symbols) reaching the goal.
+<!--more-->
 
 Examples
-=============
+----------
 
 states and objects, object type (Block)
 
@@ -152,4 +153,5 @@ The solution of blocks world problem:
 
 Next week I'll start implement interpreter and algorithm that solves Cake example.
 
-[ai-book]:          http://www.amazon.com/Artificial-Intelligence-Modern-Approach-Edition/dp/0136042597
+[Artificial Intelligence: A Modern Approach (3rd Edition)]:          http://www.amazon.com/Artificial-Intelligence-Modern-Approach-Edition/dp/0136042597
+[https://github.com/xli/longjing]:                                   https://github.com/xli/longjing
