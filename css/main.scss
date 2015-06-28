@@ -67,9 +67,23 @@ $on-laptop:        800px;
   }
 }
 
+.site-header {
+  background-color: rgba(0, 0, 0, 0.6);
+  border: none;
+}
+
 .site-title {
   font-size: 36px;
   line-height: 72px;
+  color: white;
+  &,&:visited {
+    color: white;
+  }
+}
+
+.site-footer {
+  border: none;
+  background-color: #e8e8e8;
 }
 
 .author-image {
