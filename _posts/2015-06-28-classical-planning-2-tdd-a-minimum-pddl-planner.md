@@ -54,7 +54,7 @@ Here is the problem description:
 
 {% endhighlight %}
 
-(Notice: the Cake problem is from PLANNING GRAPHS section, but we won't touch planning graph today)
+(Notice: the Cake problem is from **PLANNING GRAPHS** section, but we won't touch planning graph today)
 
 I imbedded **solution** in above problem description for
 keeping related information together.
