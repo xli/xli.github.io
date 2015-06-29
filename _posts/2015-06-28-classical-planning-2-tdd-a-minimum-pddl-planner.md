@@ -22,15 +22,15 @@ Hence we decompose the problem into 2 parts:
 
 <!--more-->
 
-To get the decomposed problems start, we choose a relatively simple problem that fits the following conditions:
+Then, we choose a relatively simple problem that fits the following conditions:
 
 1. It has small search space, so that we can start with a simple search algorithm.
 2. It is a propositional planning problem, which has no variables
    defined in the action, so that we can start with a simplified
    version of [PDDL].
 
-Considering all problem examples in the [AIMA book] (Artificial
-Intelligence: A Modern Approach), the Cake problem seems a good fit.
+Considering all problem examples in the [Artificial
+Intelligence: A Modern Approach][AIMA book] (AIMA) book, the Cake problem seems a good fit.
 Here is the problem description:
 {% highlight ruby %}
 
@@ -56,7 +56,7 @@ Here is the problem description:
 
 (Notice: the Cake problem is from PLANNING GRAPHS section, but we won't touch planning graph today)
 
-This time, I imbedded **solution** in above problem description for
+I imbedded **solution** in above problem description for
 keeping related information together.
 
 Our first test will look like this:
@@ -71,8 +71,8 @@ assert_equal problem[:solution], result[:solution]
 
 Oh, yes, we'll do [TDD]. Passing this test is today's goal. We'll use
 **Child Test** strategy described in
-[Test-Driven Development by Example][TDD by Example] book page 111 to
-reach the goal. (I'm traditional. :)
+[Test-Driven Development by Example][TDD by Example] book to
+reach the goal.
 
 The search algorithm and problem interface
 ------------------------------------------
@@ -99,13 +99,12 @@ end
 
 {% endhighlight %}
 
-In this test, we're not only care about the final solution, but also
-described the frontier and explored states, so that we know the
+In this test, we're not only caring about the final solution, but also
+describing the frontier and explored states, so that we know the
 algorithm used for resolving the problem is the one we expected.
 
-We use [TDD] strategy **Self Shunt** (page 112 - 113 in the
-[TDD by Example] book) to test search algorithm communicates correctly
-with problem interface. So here problem interface defined in test:
+We use [TDD] strategy [Self Shunt] to test search algorithm communicates correctly
+with problem interface. So here is problem interface defined in test:
 
 {% highlight ruby %}
 # problem interface
@@ -146,16 +145,16 @@ def result(action, state)
 end
 {% endhighlight %}
 
-As we expect solution to be a sequence of events (**[[:move, :a, :d],
-[:move, :d, :g]]**) instead of states path, we define an interface
-method **describe** for converting an exploring event (applying an
+As we expect solution to be a sequence of events `[[:move, :a, :d],
+[:move, :d, :g]]` instead of states path, we define an interface
+method `describe(action, state)` for converting an exploring event (applying an
 action to a state) into expected format defined by the problem.
 (Technically say: we're hiding data structure of action and state
 from search algorithm, as problem defines & operates them)
 
 The problem we defined in this test for interacting with search
 algorithm is a **route-finding problem**. We define it by symbols
-along links between them using a Hash in **actions** method.
+along links between them using a Hash in `actions(state)` method.
 The following directed-graph describes the map:
 
 ![Route-finding problem map](/images/route-finding-problem.jpg)
@@ -192,7 +191,7 @@ end
 {% endhighlight %}
 
 The breadth-first strategy implementation is straightforward, although
-it won't perform well for more complex problems:
+it won't perform well for more complex problems (we'll revisit it later):
 
 {% highlight ruby %}
 STRATEGIES = {
@@ -216,10 +215,10 @@ Full implementations:
 The [PDDL] search problem
 --------------------------
 
-Now we have clear interface for defining a search problem. [PDDL] is
-just another search problem that follows same interface rules.
+Now we have clear interface of search problem. [PDDL] is
+just another search problem that follows same protocol.
 
-Implementing **initial** and goal test **goal?** methods are relatively
+Implementing `initial` and goal test `goal?(state)` methods are relatively
 simple.
 
 Test:
@@ -238,9 +237,9 @@ def test_goal_test
 end
 {% endhighlight %}
 
-(Notice here **[:have, :cake]** is just one part of whole state. We
+(Notice here `[:have, :cake]` is just one part of whole state. We
 simply use an Array to represent a state, so a state only contains
-**[:have, :cake]** is **[[:have, :cake]]**.)
+`[:have, :cake]` is `[[:have, :cake]]`.)
 
 Implementation:
 
@@ -270,8 +269,8 @@ class Problem
 {% endhighlight %}
 
 The complexity of [PDDL] search problem is coming from interpreting
-action schema in **actions** and **result** methods.
-We can start with a test like this:
+action schema in `actions(state)` and `result(action, state)` methods.
+We start with a test like this:
 
 {% highlight ruby %}
 def test_actions
@@ -282,26 +281,26 @@ def test_actions
 end
 {% endhighlight %}
 
-Then we'll look for actions **precondition** of that matches given state:
+Then we'll look for actions precondition of that matches given state:
 
 {% highlight ruby %}
-@actions.select do |action|
-  action[:precond].all? do |cond|
-    case cond[0]
-    when :-
-      !state.include?(cond[1..-1])
-    else
-      state.include?(cond)
+def actions(state)
+  @actions.select do |action|
+    action[:precond].all? do |cond|
+      case cond[0]
+      when :-
+        !state.include?(cond[1..-1])
+      else
+        state.include?(cond)
+      end
     end
   end
 end
 {% endhighlight %}
 
-(PS: an interesting fact I found in Ruby (2.2): using
-**Array#[1..-1]** to get **[2, 3]** from **[1, 2, 3]** is faster than
-using **Array#[1]** to get **[2, 3]** from **[1, [2, 3]]**.)
+(An interesting fact I found in Ruby (2.2): using `Array#[1..-1]` to get `[2, 3]` from `[1, 2, 3]` is faster than using `Array#[1]` to get `[2, 3]` from `[1, [2, 3]]`.)
 
-Similarly, here is new **result** test to kick off implementing Problem#result:
+Similarly, here is `result(action, state)` test to kick off implementing Problem#result:
 
 {% highlight ruby %}
 def test_result
@@ -317,17 +316,19 @@ The result state should be removing negative literals and adding
 positive literals in the action's effects:
 
 {% highlight ruby %}
-action[:effect].inject(state) do |memo, effect|
-  case effect[0]
-  when :-
-    memo - [effect[1..-1]]
-  else
-    memo.include?(effect) ? memo : memo + [effect]
+def result(action, state)
+  action[:effect].inject(state) do |memo, effect|
+    case effect[0]
+    when :-
+      memo - [effect[1..-1]]
+    else
+      memo.include?(effect) ? memo : memo + [effect]
+    end
   end
 end
 {% endhighlight %}
 
-The last method **describe** is also simple, as we don't have variables
+The last method `describe(action, state)` is also simple, as we don't have variables
 defined in action yet.
 
 Test:
@@ -358,14 +359,12 @@ Full implementations:
 Back to Cake problem
 --------------------
 
-After we sorted out the [PDDL] search problem, we just need a little more work to hook up everything for solving Cake problem:
+After we sorted out the [PDDL] search problem, we just need a little more work to hook up everything for solving Cake problem (test passes):
 
 {% highlight ruby %}
 module Longjing
   module_function
-  def problem(data)
-    Problem.new(data)
-  end
+  ...
   def plan(problem)
     Search.new(:breadth_first).resolve(self.problem(problem))
   end
@@ -394,3 +393,4 @@ I'm regularly pushing my work to [longjing] project. As I'm more passionate abou
 [problem_test.rb]: https://github.com/xli/longjing/blob/12f9a8a79341ea1e952fcb355aebee824d78600b/test/problem_test.rb
 [Longjing]:        https://github.com/xli/longjing
 [Blocks World]:    https://en.wikipedia.org/wiki/Blocks_world
+[Self Shunt]:      http://c2.com/cgi/wiki?SelfShuntPattern
