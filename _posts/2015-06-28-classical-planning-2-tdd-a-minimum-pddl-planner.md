@@ -14,15 +14,15 @@ Well, [PDDL], the Planning Domain Definition Language, describes four things we 
 3. The result of applying an action
 4. The goal state for goal test
 
-Hence we decompose the problem into 2 parts:
+So we decompose the problem of implementing planning algorithm into 2 sub-problems:
 
 1. A search algorithm that can find a solution for a given problem,
-   which also defines problem interface.
-2. A [PDDL] search problem implementation that interprets our [PDDL] representation.
+   which also defines search problem interface.
+2. A [PDDL] search problem that interprets our [PDDL] representation.
 
 <!--more-->
 
-Then, we choose a relatively simple problem that fits the following conditions:
+Then, we choose a relatively simple [PDDL] problem that fits the following conditions:
 
 1. It has small search space, so that we can start with a simple search algorithm.
 2. It is a propositional planning problem, which has no variables
@@ -31,7 +31,7 @@ Then, we choose a relatively simple problem that fits the following conditions:
 
 Considering all problem examples in the [Artificial
 Intelligence: A Modern Approach][AIMA book] (AIMA) book, the Cake problem seems a good fit.
-Here is the problem description:
+Here is the Cake problem described by our [PDDL] in Ruby (see previous post [Classical Planning: #1 PDDL]):
 {% highlight ruby %}
 
 {
@@ -69,9 +69,7 @@ assert_equal problem[:solution], result[:solution]
 
 {% endhighlight %}
 
-Oh, yes, we'll do [TDD]. Passing this test is today's goal. We'll use
-**Child Test** strategy described in
-[Test-Driven Development by Example][TDD by Example] book to
+Passing this test is today's goal. We'll use **Child Test** strategy described in [Test-Driven Development by Example][TDD by Example] book to
 reach the goal.
 
 The search algorithm and problem interface
@@ -159,9 +157,7 @@ The following directed-graph describes the map:
 
 ![Route-finding problem map](/images/route-finding-problem.jpg)
 
-The implementation of search is pretty much the same with the one
-described in the [AIMA book], except we construct event sequence
-as solution:
+The implementation of search is similar with the graph search described in the chapter 3 “Solving Problems by Searching” of [AIMA book], except we construct event sequence as solution. Hence we have a sequences hash to store all sequences of explored and frontier states:
 
 {% highlight ruby %}
 def resolve(problem)
@@ -190,8 +186,7 @@ def resolve(problem)
 end
 {% endhighlight %}
 
-The breadth-first strategy implementation is straightforward, although
-it won't perform well for more complex problems (we'll revisit it later):
+The breadth-first strategy implementation is also straightforward; as sequences hash has all state sequences, we use it to find out next exploring state having shortest path in frontier:
 
 {% highlight ruby %}
 STRATEGIES = {
@@ -281,7 +276,7 @@ def test_actions
 end
 {% endhighlight %}
 
-Then we'll look for actions precondition of that matches given state:
+Then we'll look for actions precondition of that matches given state; the only special condition we need handle is negative condition, which starts with `:-`:
 
 {% highlight ruby %}
 def actions(state)
@@ -394,3 +389,4 @@ I'm regularly pushing my work to [longjing] project. As I'm more passionate abou
 [Longjing]:        https://github.com/xli/longjing
 [Blocks World]:    https://en.wikipedia.org/wiki/Blocks_world
 [Self Shunt]:      http://c2.com/cgi/wiki?SelfShuntPattern
+[Classical Planning: #1 PDDL]:    {% post_url 2015-06-23-classical-planning-1-planning-domain-definition-language %}
