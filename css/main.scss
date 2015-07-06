@@ -91,6 +91,19 @@ strong,h1,h2,h3,h4,h5,h6 {
   margin-right: 10px;
 }
 
+.post-nav {
+  @extend %clearfix;
+  min-height: 40px;
+}
+
+.prev {
+  float: left;
+}
+
+.next {
+  float: right;
+}
+
 img[alt="Route-finding problem map"] {
   width: 300px;
 }
