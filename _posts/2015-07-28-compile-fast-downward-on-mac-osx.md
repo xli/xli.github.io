@@ -5,6 +5,16 @@ categories: AI
 tags: classical-planning, fast-downward
 ---
 
+> UPDATE:
+
+> I reported a bug to FastDownward. Malte Helmert fixed compiling issues on MacOS.
+> And he told me they made some changes to make the code compile with clang (LLVM) as well.
+> So all you need to do is just:
+
+>     cd src
+>     ./build_all
+
+
 [FD] as a platform stands out in [IPC-2014] as "29 planners out of 67 built on top of [FD]".
 
 So I decided to try it out. However, the document seems out of date for compiling the codebase on Mac OSX. Here is my process to get it compiled on my laptop Mac OSX 10.10.4.
