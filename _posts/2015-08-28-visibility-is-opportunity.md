@@ -3,7 +3,6 @@ layout: post
 title:  "Visibility Is Opportunity: stories of continuous improving continuous integration"
 categories: continuous-delivery
 tags: CI, Go, build, Mingle
-draft: true
 ---
 
 Visibility can be hard, but it's worth it.
