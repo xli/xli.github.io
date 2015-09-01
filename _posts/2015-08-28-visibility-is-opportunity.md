@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Visibility Is Opportunity: stories of continuous improving continuous integration"
+title:  "Visibility Is Opportunity: stories of improving continuous integration"
 categories: continuous-delivery
 tags: CI, Go, build, Mingle
 ---
