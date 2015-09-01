@@ -1,49 +1,58 @@
 ---
 layout: post
-title:  "Visibility Is Opportunity"
+title:  "Visibility Is Opportunity: stories of continuous improving continuous integration"
 categories: continuous-delivery
 tags: CI, Go, build, Mingle
 draft: true
 ---
 
-A continous integration problem
+Visibility can be hard, but it's worth it.
 ==================
 
 [Mingle] is a 9 years JRuby Rails project.
-We do continuous integration with selenium test since Oct 2006.
-We write selenium tests to test everything.
-July 2007, our build time increased to 8 hours on one machine.
-Then we parallelized build.
-Our tests continue to grow.
-And we continue to put in more hardwares.
+We do test-driven development and continous integration.
+We write selenium tests to test everything since Oct 2006.
 
-For a long time, our **build time was 1 to 2 hours**. We thought it was a good balance of build time and resources needed.
+For a long time, our **build time was 1 to 2 hours**.
+We thought it was a good balance of build time and resources needed.
 
-Test code performance improvement
-==================
+2014, we had about 12+K tests, including units, functionals and selenium tests.
+The best build time was 1 hour ran in parallel on 46 VMs.
 
-2014, the best build time was 1 hour ran in parallel on 47 VMs.
 We ran test in parallel by [Go] jobs and [TLB].
-We created 46 test jobs in one [Go] stage.
-Then grouped test suites into units, functionals and acceptnace (selenium) test.
-Each group ran a subset of tests distributed by [TLB].
-We configured [TLB] to balance test by test runtime.
+There were 46 test jobs in one [Go] stage.
+Units, functionals and selenium tests were different.
+So We created 3 [TLB] tasks to distribute them separately.
+We configured [TLB] to distribute tests by test runtime for having similar build time.
 
-For improving test performance, I did profiling on all tests.
-I used [Sampling Profiler](https://rubygems.org/gems/sampling_prof) to profile our build:
+When I looked for ideas to improve build performance, I had the following questions:
 
-1. First I ran sampling profiler with test on build.
-2. Then sent all profiling data (call-graph) to a server.
-3. Server merged profiling result into one big profiling result.
-4. Last, I built a UI to navigate through the big profiling result.
+1. Where was time spending when test was running?
+2. Were there bottlenecks in test code?
 
-It gave me code level visibility of where was time spending.
-It opened performance improvement opportunity.
-The biggest supprising I found was test slept 1 hour on build in total.
-For example, the following code tries to wait for a condition:
+Profiling was an obvious option, but it was challenge to profile build.
+Because:
+
+1. Profiling one test won't help. To figure out what's bottleneck for entire build, we need profile all tests running.
+2. Profiling generates lots of data. 1 hour build on 46 VMs will generate tons of data.
+3. We need merge/aggregate data collected from build VMs for analysis.
+
+It turns out, sampling profiler can be a good tool for this job. But Mingle is on Ruby 1.8.
+There wasn't sampling profiler support it.
+So I wrote [Sampling Profiler] and a data analysis web application to do the job:
+
+1. First I ran [Sampling Profiler] with test on build.
+2. Then sent all profiling call-graph data to the data analysis web application.
+3. Data analysis web application merges same build profiling result.
+4. Last, I built UI to navigate through profiling result.
+
+After I did it, test code performance improvement became straightforward.
+The biggest surprise I found was test slept 1 hour on build in total.
+The following code was one example:
 
 {% highlight ruby %}
 Timeout::timeout(time / 1000.0) do
+  # wait until given JavaScript condition is true
   while get_eval(condition).downcase == "false"
     sleep 1
   end
@@ -51,14 +60,18 @@ end
 {% endhighlight %}
 
 The `sleep 1` code above caused build slept about 40+ minutes in total.
+Changing `sleep 1` to `sleep 0.1` fixed problem.
 
-After fixed about 15 small bottlenecks, our **build time reduced to 45 minutes**.
+Although there was no big bottleneck found, I was able to list and fix a handful small bottlenecks.
+Our **build time reduced to 45 minutes**, and became more stable.
+
+**You're on the right track when you're improving visibility of the problem detials. It can be hard. But hard work pays off.**
 
 
-Build infrastructure performance improvement
+Detail can lead you to the truth.
 ==================
 
-Recently, our build became unstable (more random failures) and longer (1 hour).
+Recently, our build became unstable (more random failures) and longer (1 hour) again.
 I got time to look into build performance again.
 My teammate [Jeff Norris] noticed it was too slow when running selenium test on build VM.
 I realized we had not paid attention to our VM performance.
@@ -70,12 +83,15 @@ To run a selenium test, we need launch 3 processes:
 3. Selenium test.
 
 It is possible that 1 vertual CPU is not enough.
-So we increased build VMs to 2 vCPU to try it out.
-The result was not as good as we thought. Build time decreased to 50 minutes.
-But I noticed some selenium test jobs ran twice faster than other selenium test jobs.
+So we increased build VMs to 2 vCPU.
+Build time decreased to 50 minutes.
+The result was not as good as we thought.
+So I compared all jobs runtime.
+It turned out some selenium test jobs ran twice faster than other selenium test jobs.
+
 As [TLB] balanced our selenium tests by time, we expect job runtime similar.
 My first hypothesis was [TLB] may not work as expected.
-
+Because tests didn't seem to be distributed well by runtime.
 To verify my hypothesis, I checked out [TLB] source code. It was more complex than I thought.
 And there is also no way to output more logs to verify it's correctness.
 But [Go] has good support for APIs, so I wrote [Ruby script](https://github.com/ThoughtWorksStudios/goapi/blob/master/examples/compare_test_runtime.rb) to verify my hypothesis.
@@ -92,10 +108,10 @@ Red bars are test runtime calculated by previous build test runtime:
 From this result, we can see the balance is not perfect, but OK.
 Because red bars are similar high across all acceptance (selenium test) jobs.
 
-Blue bars matches what I observed on build time.
+Blue bars matched what I observed on build time.
 Then I ran same script on more builds. The outputs were similar, just different jobs got longer time to run.
 
-As [Go] random picks up build VMs to run any job, it gives me a clue that maybe its build VM performance issue.
+As [Go] random picked up build VMs to run any job, it gave me a clue that maybe its build VM performance issue.
 So I wrote another [script](https://github.com/ThoughtWorksStudios/goapi/blob/master/examples/agent_stats.rb) to build the following chart:
 
 ![Go build agent runtime](/images/vms-build-time.jpg)
@@ -105,7 +121,9 @@ Then Barrow Kwan found out 2 of our VMs hosts were overloaded when we increased 
 We have set the host NOT to overload the CPU core but there was a typo in configuration.
 After sorted out VM host CPU overload issue, our **build time reduced to 30 minutes**.
 
-Build task performance improvement
+**So, don't just assume, prove it with detailed data. Make details visible. It leads you to the truth.**
+
+You don't know what you don't know.
 ======================
 
 [Go] introduced "timestamps in console logs" in release 15.1.
@@ -134,21 +152,33 @@ Without "timestamps in console logs", it is something like following:
 No one will notice it ever.
 
 The benefit of fixing this problem is outstanding for our **pre-commit build**.
-Pre-commit build is a build runs a test suite before developer pushs changes to trunk repository.
+Pre-commit build is a build running a test suite before developer pushes changes to trunk repository.
 Our pre-commit build runs all unit and functional tests.
 The **build time reduced from 18 minutes to 10 minutes** with 20 processes on 3 machines.
+
+**So, use/build tools that keep information visible,
+you may be surprised what you can get from it.**
 
 Conclusion
 =================
 
-We thought we could not improve build time without throwing in more hardwares.
-We thought 1 to 2 hours build time were the best we could get with limited resources.
-We thought we had too many selenium tests.
-We thought long time build was what we had to pay for more coverage in test.
+Each time we improved our CI build performance, we thought that's the best we could do.
+But it was not true overtime.
 
-But we got opportunities to improve when we find out more build time details.
+We found something, but missed other parts.
+So when you look into a problem, don't assume how it works.
+Working for better understanding instead.
+There are various ways to gain more understanding of the problem:
 
-**So when you face a tough problem, don't assume, make details visible.**
+* Start from scratch.
+* Look from different point of view.
+* Make hypothesis and verify it.
+* Find out more details of the problem.
+* Learn from resolving similar problems.
+* ...
+
+Visibility of the problem detail supports you hunting helpful data.
+Thus it gives you more opportunities to understand and solve problem.
 
 
 [Mingle]:                                           https://www.thoughtworks.com/mingle
@@ -158,3 +188,4 @@ But we got opportunities to improve when we find out more build time details.
 [tlb.rb]:                                           https://github.com/test-load-balancer/tlb.rb
 [OpenStack]:                                        https://www.openstack.org/
 [GoAPI]:                                            https://github.com/ThoughtWorksStudios/goapi
+[Sampling Profiler]:                               https://rubygems.org/gems/sampling_prof
