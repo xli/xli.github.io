@@ -49,7 +49,7 @@ As [Fast Forward] uses relaxed planning graph to implement ignoring delete list 
 
 Anyway, I did implement the relaxed planning graph used in [Fast Forward], and the S0 does not contain negative literals that are not included in the initial condition.
 
-Conclude
+Conclusion
 ==============
 
 When closed-world assumption applied, we probably can construct S0 with all negative literals that are not mentioned in initial condition like the example showed in the book. But for an efficient implementation or open-world assumption, we can ignore literals that are not mentioned in initial condition when building S0 level.
